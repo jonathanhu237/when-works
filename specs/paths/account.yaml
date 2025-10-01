@@ -1,4 +1,18 @@
 "/account/profile":
+  get:
+    tags:
+      - "Account Management"
+    summary: "Get current user's profile"
+    description: "Retrieves the complete profile information for the currently authenticated user."
+    responses:
+      "200":
+        description: "Profile retrieved successfully."
+        content:
+          application/json:
+            schema:
+              $ref: "../components/schemas/user.yaml#/User"
+      "401":
+        description: "Unauthorized - User is not logged in."
   patch:
     tags:
       - "Account Management"
