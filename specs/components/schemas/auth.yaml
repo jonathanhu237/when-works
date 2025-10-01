@@ -1,0 +1,16 @@
+LoginRequest:
+  type: "object"
+  description: "The request body for user login."
+  required:
+    - "username"
+    - "password"
+  properties:
+    username:
+      type: "string"
+      description: "The user's registered username."
+      example: "johndoe"
+    password:
+      type: "string"
+      format: "password"
+      description: "The user's password."
+      example: "pa55word"

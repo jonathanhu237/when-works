@@ -16,6 +16,10 @@ paths:
     $ref: "./paths/users.yaml#/~1users"
   "/users/{userId}":
     $ref: "./paths/users.yaml#/~1users~1{userId}"
+  "/login":
+    $ref: "./paths/auth.yaml#/~1login"
+  "/logout":
+    $ref: "./paths/auth.yaml#/~1logout"
 
 components:
   schemas:
@@ -27,6 +31,8 @@ components:
       $ref: "./components/schemas/user.yaml#/NewUser"
     UpdateUser:
       $ref: "./components/schemas/user.yaml#/UpdateUser"
+    LoginRequest:
+      $ref: "./components/schemas/auth.yaml#/LoginRequest"
 
   securitySchemes:
     cookieAuth:

@@ -1,0 +1,34 @@
+"/login":
+  post:
+    tags:
+      - "Authentication"
+    summary: "User login"
+    description: "Authenticates a user and sets an HttpOnly cookie upon success."
+    security: [] 
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/auth.yaml#/LoginRequest"
+    responses:
+      "200":
+        description: "Login successful. The user object is returned and an HttpOnly cookie is set in the response headers."
+        content:
+          application/json:
+            schema:
+              $ref: "../components/schemas/user.yaml#/User"
+      "401":
+        description: "Unauthorized - Invalid username or password."
+
+"/logout":
+  post:
+    tags:
+      - "Authentication"
+    summary: "User logout"
+    description: "Logs out the current user by clearing their session cookie."
+    responses:
+      "204":
+        description: "Logout successful. No content is returned."
+      "401":
+        description: "Unauthorized - No active session to log out from."
