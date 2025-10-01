@@ -16,12 +16,16 @@ paths:
     $ref: "./paths/users.yaml#/~1users"
   "/users/{userId}":
     $ref: "./paths/users.yaml#/~1users~1{userId}"
-  "/login":
+  "/auth/login":
     $ref: "./paths/auth.yaml#/~1login"
-  "/logout":
+  "/auth/logout":
     $ref: "./paths/auth.yaml#/~1logout"
-  "/me":
-    $ref: "./paths/account.yaml#/~1me"
+  "/auth/forgot-password":
+    $ref: "./paths/auth.yaml#/~1auth~1forgot-password"
+  "/auth/reset-password":
+    $ref: "./paths/auth.yaml#/~1auth~1reset-password"
+  "/account/profile":
+    $ref: "./paths/account.yaml#/~1account~1profile"
   "/account/password":
     $ref: "./paths/account.yaml#/~1account~1password"
 

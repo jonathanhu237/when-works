@@ -14,3 +14,32 @@ LoginRequest:
       format: "password"
       description: "The user's password."
       example: "pa55word"
+
+ForgotPasswordRequest:
+  type: "object"
+  description: "The request body for requesting a password reset link."
+  required:
+    - "email"
+  properties:
+    email:
+      type: "string"
+      format: "email"
+      description: "The email address of the account to reset the password for."
+      example: "forgotful.user@example.com"
+
+ResetPasswordRequest:
+  type: "object"
+  description: "The request body for setting a new password using a reset token."
+  required:
+    - "token"
+    - "newPassword"
+  properties:
+    token:
+      type: "string"
+      description: "The password reset token received via email."
+      example: "a1b2c3d4e5f6..."
+    newPassword:
+      type: "string"
+      format: "password"
+      description: "The desired new password."
+      writeOnly: true

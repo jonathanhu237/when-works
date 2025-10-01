@@ -1,4 +1,4 @@
-"/me":
+"/account/profile":
   patch:
     tags:
       - "Account Management"

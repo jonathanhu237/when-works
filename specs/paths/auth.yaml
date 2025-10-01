@@ -32,3 +32,42 @@
         description: "Logout successful. No content is returned."
       "401":
         description: "Unauthorized - No active session to log out from."
+
+"/auth/forgot-password":
+  post:
+    tags:
+      - "Authentication"
+    summary: "Request a password reset"
+    description: |
+      Initiates the password reset process for a user.
+      For security reasons, this endpoint will **always** return a successful response, even if the email address does not exist in the system.
+      This prevents user enumeration attacks.
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/auth.yaml#/ForgotPasswordRequest"
+    responses:
+      "202":
+        description: "Request accepted. If an account with the provided email exists, a reset link will be sent."
+
+"/auth/reset-password":
+  post:
+    tags:
+      - "Authentication"
+    summary: "Reset password with a token"
+    description: "Sets a new password for a user using a valid reset token."
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/auth.yaml#/ResetPasswordRequest"
+    responses:
+      "204":
+        description: "Password has been successfully updated. The user can now log in with the new password."
+      "400":
+        description: "Bad Request - The provided token is invalid, expired, or the new password is too weak."
