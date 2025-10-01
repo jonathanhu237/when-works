@@ -1,0 +1,16 @@
+Role:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: "The unique identifier for the role."
+      readOnly: true
+    name:
+      type: string
+      description: "The name of the role."
+      example: "Administrator"
+    description:
+      type: string
+      description: "A short description of the role's permissions and responsibilities."
+      example: "Has full access to all system features."
