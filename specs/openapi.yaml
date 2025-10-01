@@ -1,0 +1,36 @@
+openapi: 3.0.4
+info:
+  title: "When Works API"
+  description: "API documentation for the When Works scheduling system."
+  version: "1.0.0"
+
+servers:
+  - url: "http://localhost:8080/api/v1"
+    description: "Local development server"
+
+security:
+  - cookieAuth: []
+
+paths:
+  "/users":
+    $ref: "./paths/users.yaml#/~1users"
+  "/users/{userId}":
+    $ref: "./paths/users.yaml#/~1users~1{userId}"
+
+components:
+  schemas:
+    Role:
+      $ref: "./components/schemas/role.yaml#/Role"
+    User:
+      $ref: "./components/schemas/user.yaml#/User"
+    NewUser:
+      $ref: "./components/schemas/user.yaml#/NewUser"
+    UpdateUser:
+      $ref: "./components/schemas/user.yaml#/UpdateUser"
+
+  securitySchemes:
+    cookieAuth:
+      type: "apiKey"
+      in: "cookie"
+      name: "accessToken"
+      description: "The API token stored in an HttpOnly cookie."
