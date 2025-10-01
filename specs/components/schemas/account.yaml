@@ -1,0 +1,31 @@
+UpdateProfileRequest:
+  type: "object"
+  description: "Fields for updating the current user's own profile. All fields are optional."
+  properties:
+    name:
+      type: "string"
+      description: "The user's new full display name."
+      example: "Johnny Doe"
+    email:
+      type: "string"
+      format: "email"
+      description: "The user's new email address."
+      example: "johnny.doe@example.com"
+
+ChangePasswordRequest:
+  type: "object"
+  description: "The request body for changing the current user's password."
+  required:
+    - "currentPassword"
+    - "newPassword"
+  properties:
+    currentPassword:
+      type: "string"
+      format: "password"
+      description: "The user's current password for verification."
+      writeOnly: true
+    newPassword:
+      type: "string"
+      format: "password"
+      description: "The user's desired new password."
+      writeOnly: true
