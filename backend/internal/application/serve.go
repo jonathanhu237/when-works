@@ -37,7 +37,7 @@ func (app *Application) Serve() error {
 		shutdownError <- srv.Shutdown(ctx)
 	}()
 
-	slog.Info("starting server", "addr", srv.Addr, "env", app.config.Environment)
+	app.logger.Info("starting server", "addr", srv.Addr, "env", app.config.Environment)
 
 	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
