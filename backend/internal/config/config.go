@@ -41,11 +41,15 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host     string `env:"HOST"`
-	Port     string `env:"PORT"`
-	User     string `env:"USER"`
-	Password string `env:"PASSWORD"`
-	Name     string `env:"NAME"`
+	Host            string `env:"HOST"`
+	Port            string `env:"PORT"`
+	User            string `env:"USER"`
+	Password        string `env:"PASSWORD"`
+	Name            string `env:"NAME"`
+	MaxOpenConns    int    `env:"MAX_OPEN_CONNS"`
+	MaxIdleConns    int    `env:"MAX_IDLE_CONNS"`
+	ConnMaxIdleTime int    `env:"CONN_MAX_IDLE_TIME"`
+	PingTimeout     int    `env:"PING_TIMEOUT"`
 }
 
 func LoadConfig() (Config, error) {
