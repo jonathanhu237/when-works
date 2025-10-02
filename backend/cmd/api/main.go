@@ -5,7 +5,7 @@ import (
 
 	"github.com/jonathanhu237/when-works/backend/internal/application"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
-	"github.com/jonathanhu237/when-works/backend/internal/helpers"
+	"github.com/jonathanhu237/when-works/backend/internal/logger"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	logger := helpers.InitLogger(cfg)
+	logger := logger.Init(cfg)
 	logger.Info("logger initialized successfully")
 
 	app := application.New(cfg, logger)
