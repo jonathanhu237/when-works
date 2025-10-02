@@ -7,6 +7,6 @@ services:
         - action: rebuild
           path: ./backend
 
-  db:
+  database:
     ports:
-      - "${DB_PORT}:5432"
+      - "${DATABASE_PORT}:5432"
