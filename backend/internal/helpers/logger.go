@@ -7,7 +7,7 @@ import (
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 )
 
-func InitLogger(cfg config.Config) {
+func InitLogger(cfg config.Config) *slog.Logger {
 	var handler slog.Handler
 
 	if cfg.Environment == config.Development {
@@ -17,5 +17,5 @@ func InitLogger(cfg config.Config) {
 	}
 
 	logger := slog.New(handler)
-	slog.SetDefault(logger)
+	return logger
 }
