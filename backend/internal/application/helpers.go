@@ -1,4 +1,4 @@
-package helpers
+package application
 
 import (
 	"encoding/json"
@@ -10,6 +10,9 @@ import (
 	"strings"
 )
 
+// ------------------------------------
+// JSON
+// ------------------------------------
 func WriteJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
