@@ -1,0 +1,12 @@
+services:
+  backend:
+    ports:
+      - "${SERVER_PORT}:3000"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend
+
+  db:
+    ports:
+      - "${DB_PORT}:5432"
