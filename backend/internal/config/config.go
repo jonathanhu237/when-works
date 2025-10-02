@@ -34,9 +34,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	IdleTimeout  int `env:"IDLE_TIMEOUT"`
-	ReadTimeout  int `env:"READ_TIMEOUT"`
-	WriteTimeout int `env:"WRITE_TIMEOUT"`
+	IdleTimeout     int `env:"IDLE_TIMEOUT"`
+	ReadTimeout     int `env:"READ_TIMEOUT"`
+	WriteTimeout    int `env:"WRITE_TIMEOUT"`
+	ShutdownTimeout int `env:"SHUTDOWN_TIMEOUT"`
 }
 
 type DatabaseConfig struct {

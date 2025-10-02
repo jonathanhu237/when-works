@@ -31,7 +31,7 @@ func (app *Application) Serve() error {
 
 		app.logger.Info("shutting down server", "signal", s.String())
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(app.config.Server.ShutdownTimeout)*time.Second)
 		defer cancel()
 
 		shutdownError <- srv.Shutdown(ctx)
