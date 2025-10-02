@@ -7,16 +7,16 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
-	Host     string `env:"HOST,required"`
-	Port     string `env:"PORT,required"`
-	User     string `env:"USER,required"`
-	Password string `env:"PASSWORD,required"`
-	Name     string `env:"NAME,required"`
+	Host     string `env:"HOST"`
+	Port     string `env:"PORT"`
+	User     string `env:"USER"`
+	Password string `env:"PASSWORD"`
+	Name     string `env:"NAME"`
 }
 
 func LoadConfig() (Config, error) {
 	cfg := Config{}
-	if err := env.Parse(&cfg); err != nil {
+	if err := env.ParseWithOptions(&cfg, env.Options{RequiredIfNoDef: true}); err != nil {
 		return Config{}, err
 	}
 	return cfg, nil
