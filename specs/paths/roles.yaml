@@ -1,0 +1,89 @@
+"/roles":
+  get:
+    tags:
+      - "Role Management"
+    summary: "List all roles"
+    description: "Retrieves a list of all available roles in the system."
+    responses:
+      "200":
+        description: "A list of roles."
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: "../components/schemas/role.yaml#/Role"
+  post:
+    tags:
+      - "Role Management"
+    summary: "Create a new role"
+    description: "Adds a new role to the system."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/role.yaml#/NewRole"
+    responses:
+      "201":
+        description: "Role created successfully."
+        content:
+          application/json:
+            schema:
+              $ref: "../components/schemas/role.yaml#/Role"
+      "400":
+        description: "Invalid input provided."
+
+"/roles/{roleId}":
+  parameters:
+    - name: "roleId"
+      in: "path"
+      required: true
+      description: "The UUID of the role to perform operations on."
+      schema:
+        type: "string"
+        format: "uuid"
+  get:
+    tags:
+      - "Role Management"
+    summary: "Get role by ID"
+    description: "Retrieves a single role by its ID, including its associated permissions."
+    responses:
+      "200":
+        description: "Successful operation."
+        content:
+          application/json:
+            schema:
+              $ref: "../components/schemas/role.yaml#/Role"
+      "404":
+        description: "Role not found."
+  patch:
+    tags:
+      - "Role Management"
+    summary: "Update an existing role (Partial)"
+    description: "Partially updates an existing role's information. Requires admin privileges."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/role.yaml#/UpdateRole"
+    responses:
+      "200":
+        description: "Role updated successfully."
+        content:
+          application/json:
+            schema:
+              $ref: "../components/schemas/role.yaml#/Role"
+      "404":
+        description: "Role not found."
+  delete:
+    tags:
+      - "Role Management"
+    summary: "Delete a role"
+    description: "Deletes a role from the system. Requires admin privileges."
+    responses:
+      "204":
+        description: "Role deleted successfully."
+      "404":
+        description: "Role not found."

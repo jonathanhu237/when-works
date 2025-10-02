@@ -12,6 +12,10 @@ security:
   - cookieAuth: []
 
 paths:
+  "/roles":
+    $ref: "./paths/roles.yaml#/~1roles"
+  "/roles/{roleId}":
+    $ref: "./paths/roles.yaml#/~1roles~1{roleId}"
   "/users":
     $ref: "./paths/users.yaml#/~1users"
   "/users/{userId}":
@@ -31,8 +35,14 @@ paths:
 
 components:
   schemas:
+    Permission:
+      $ref: "./components/schemas/role.yaml#/Permission"
     Role:
       $ref: "./components/schemas/role.yaml#/Role"
+    NewRole:
+      $ref: "./components/schemas/role.yaml#/NewRole"
+    UpdateRole:
+      $ref: "./components/schemas/role.yaml#/UpdateRole"
     User:
       $ref: "./components/schemas/user.yaml#/User"
     NewUser:
