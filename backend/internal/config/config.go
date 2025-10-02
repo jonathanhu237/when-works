@@ -29,7 +29,14 @@ func (e *Environment) UnmarshalText(text []byte) error {
 
 type Config struct {
 	Environment Environment    `env:"ENVIRONMENT"`
+	Server      ServerConfig   `envPrefix:"SERVER_"`
 	Database    DatabaseConfig `envPrefix:"DATABASE_"`
+}
+
+type ServerConfig struct {
+	IdleTimeout  int `env:"IDLE_TIMEOUT"`
+	ReadTimeout  int `env:"READ_TIMEOUT"`
+	WriteTimeout int `env:"WRITE_TIMEOUT"`
 }
 
 type DatabaseConfig struct {

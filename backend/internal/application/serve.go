@@ -16,9 +16,9 @@ func (app *Application) Serve() error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", 3000),
 		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  time.Duration(app.config.Server.IdleTimeout) * time.Second,
+		ReadTimeout:  time.Duration(app.config.Server.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(app.config.Server.WriteTimeout) * time.Second,
 		ErrorLog:     slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
 	}
 
