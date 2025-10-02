@@ -6,7 +6,9 @@ services:
       watch:
         - action: rebuild
           path: ./backend
+    restart: none
 
   database:
     ports:
       - "${DATABASE_PORT}:5432"
+    restart: none
