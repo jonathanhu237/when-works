@@ -1,4 +1,4 @@
-package logger
+package helpers
 
 import (
 	"log/slog"
@@ -7,7 +7,7 @@ import (
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 )
 
-func Init(cfg config.Config) {
+func InitLogger(cfg config.Config) {
 	var handler slog.Handler
 
 	if cfg.Environment == config.Development {
