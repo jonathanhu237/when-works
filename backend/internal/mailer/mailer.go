@@ -1,12 +1,16 @@
 package mailer
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/wneessen/go-mail"
 )
+
+//go:embed "templates"
+var templateFS embed.FS
 
 type Mailer struct {
 	client *mail.Client
@@ -42,7 +46,7 @@ func (m *Mailer) SendHTML(to, subject string, templateFile string, data any) err
 	}
 
 	msg.Subject(subject)
-	tmpl, err := template.ParseFiles(fmt.Sprintf("templates/%s", templateFile))
+	tmpl, err := template.ParseFS(templateFS, fmt.Sprintf("templates/%s", templateFile))
 	if err != nil {
 		return fmt.Errorf("failed to parse template file: %w", err)
 	}

@@ -17,7 +17,7 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password" validate:"required"`
 	}
 
-	if err := readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &input); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
@@ -78,7 +78,7 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 
 	// Return
-	if err = writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
+	if err = app.writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
@@ -96,7 +96,7 @@ func (app *Application) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 
 	// Return success response
-	if err := writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }

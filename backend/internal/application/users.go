@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/jonathanhu237/when-works/backend/internal/models"
-	"github.com/jonathanhu237/when-works/backend/internal/tasks"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,7 +15,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 		Name     string `json:"name" validate:"required"`
 	}
 
-	if err := readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &input); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
@@ -27,7 +26,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Generate a random password
-	password := generatePassword()
+	password := app.generatePassword()
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -55,20 +54,22 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Enqueue email task
-	task, err := tasks.NewEmailNewUserTask(user.Email, user.Username, password, app.config)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
+	// Send email in background
+	app.background(func() {
+		data := map[string]any{
+			"username": user.Username,
+			"password": password,
+		}
 
-	if _, err := app.asynqClient.Enqueue(task); err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
+		if err := app.mailer.SendHTML(user.Email, "Welcome to WhenWorks", "welcome.html", data); err != nil {
+			app.logger.Error("failed to send welcome email to new user", "error", err)
+			return
+		}
+		app.logger.Info("welcome email sent to new user", "email", user.Email)
+	})
 
 	// Return created user
-	if err := writeJSON(w, http.StatusCreated, user, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusCreated, user, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }

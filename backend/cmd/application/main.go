@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/hibiken/asynq"
 	"github.com/jonathanhu237/when-works/backend/internal/application"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/jonathanhu237/when-works/backend/internal/logger"
+	"github.com/jonathanhu237/when-works/backend/internal/mailer"
 	"github.com/jonathanhu237/when-works/backend/internal/models"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -73,19 +73,19 @@ func main() {
 	validator := validator.New(validator.WithRequiredStructEnabled())
 
 	// ------------------------------
-	// Create asynq Client
+	// Initialize mailer
 	// ------------------------------
-	asynqClient := asynq.NewClient(asynq.RedisClientOpt{
-		Addr:     fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-	})
-	defer asynqClient.Close()
+	mailer, err := mailer.New(cfg)
+	if err != nil {
+		logger.Error("error initializing mailer", "error", err)
+		os.Exit(1)
+	}
+	logger.Info("mailer initialized successfully")
 
 	// ------------------------------
 	// Initialize application
 	// ------------------------------
-	app := application.New(cfg, logger, models, validator, asynqClient)
+	app := application.New(cfg, logger, models, validator, mailer)
 	if err := app.Init(); err != nil {
 		logger.Error("error during application initialization", "error", err)
 		os.Exit(1)

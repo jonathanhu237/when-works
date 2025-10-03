@@ -23,7 +23,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 		"details": details,
 	}
 
-	if err := writeJSON(w, status, data, nil); err != nil {
+	if err := app.writeJSON(w, status, data, nil); err != nil {
 		app.logError(r, err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}

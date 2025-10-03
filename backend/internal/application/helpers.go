@@ -14,7 +14,7 @@ import (
 // ------------------------------------
 // JSON
 // ------------------------------------
-func writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
+func (app *Application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
 	// Handle 204 No Content - should not include a response body
 	if status == http.StatusNoContent {
 		maps.Copy(w.Header(), headers)
@@ -41,7 +41,7 @@ func writeJSON(w http.ResponseWriter, status int, data any, headers http.Header)
 	return nil
 }
 
-func readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+func (app *Application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
@@ -95,7 +95,7 @@ func readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 // ------------------------------------
 // Password
 // ------------------------------------
-func generatePassword() string {
+func (app *Application) generatePassword() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	const length = 12
 
@@ -105,4 +105,23 @@ func generatePassword() string {
 	}
 
 	return string(password)
+}
+
+// ------------------------------------
+// Background
+// ------------------------------------
+func (app *Application) background(fn func()) {
+	app.wg.Add(1)
+
+	go func() {
+		defer app.wg.Done()
+
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.Error("background panic", "error", err)
+			}
+		}()
+
+		fn()
+	}()
 }
