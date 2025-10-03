@@ -36,8 +36,8 @@ func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 	app.errorResponse(w, r, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", message, nil)
 }
 
-func (app *Application) routeNotFound(w http.ResponseWriter, r *http.Request) {
-	app.errorResponse(w, r, http.StatusNotFound, "ROUTE_NOT_FOUND", "the requested route could not be found", nil)
+func (app *Application) notFound(w http.ResponseWriter, r *http.Request) {
+	app.errorResponse(w, r, http.StatusNotFound, "RESOURCE_NOT_FOUND", "the requested resource could not be found", nil)
 }
 
 func (app *Application) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
