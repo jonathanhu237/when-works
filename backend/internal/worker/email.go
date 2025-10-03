@@ -10,6 +10,8 @@ import (
 )
 
 func (w *Worker) HandleEmailNewUserTask(ctx context.Context, t *asynq.Task) error {
+	w.logger.Info("processing new user email task", "task_id", t.ResultWriter().TaskID())
+
 	var payload tasks.EmailNewUserPayload
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("failed to unmarshal payload: %w", err)
