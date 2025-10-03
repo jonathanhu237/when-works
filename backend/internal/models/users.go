@@ -7,7 +7,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
+)
+
+var (
+	ErrUsernameConflict = errors.New("username already exists")
+	ErrEmailConflict    = errors.New("email already exists")
 )
 
 type User struct {
@@ -50,7 +57,23 @@ func (m *UserModel) Insert(user *User) error {
 	defer cancel()
 
 	args := []any{user.Username, user.Email, user.Name, user.PasswordHash, user.IsAdmin}
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt)
+	if err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case pgerrcode.UniqueViolation:
+				switch pgErr.ConstraintName {
+				case "users_username_key":
+					return ErrUsernameConflict
+				case "users_email_key":
+					return ErrEmailConflict
+				}
+			}
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (m *UserModel) GetByUsername(username string) (*User, error) {
