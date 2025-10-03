@@ -10,6 +10,7 @@ import (
 	"github.com/jonathanhu237/when-works/backend/internal/application"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/jonathanhu237/when-works/backend/internal/logger"
+	"github.com/jonathanhu237/when-works/backend/internal/models"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -60,9 +61,22 @@ func main() {
 	logger.Info("database connection pool established")
 
 	// ------------------------------
+	// Create models
+	// ------------------------------
+	models := models.New(db, cfg)
+
+	// ------------------------------
+	// Initialize application
+	// ------------------------------
+	app := application.New(cfg, logger, models)
+	if err := app.Init(); err != nil {
+		logger.Error("error during application initialization", "error", err)
+		os.Exit(1)
+	}
+
+	// ------------------------------
 	// Start application
 	// ------------------------------
-	app := application.New(cfg, logger, db)
 	if err := app.Serve(); err != nil {
 		logger.Error("error starting server", "error", err)
 		os.Exit(1)

@@ -28,9 +28,10 @@ func (e *Environment) UnmarshalText(text []byte) error {
 }
 
 type Config struct {
-	Environment Environment    `env:"ENVIRONMENT"`
-	Server      ServerConfig   `envPrefix:"SERVER_"`
-	Database    DatabaseConfig `envPrefix:"DATABASE_"`
+	Environment  Environment        `env:"ENVIRONMENT"`
+	Server       ServerConfig       `envPrefix:"SERVER_"`
+	Database     DatabaseConfig     `envPrefix:"DATABASE_"`
+	InitialAdmin InitialAdminConfig `envPrefix:"INITIAL_ADMIN_"`
 }
 
 type ServerConfig struct {
@@ -50,6 +51,13 @@ type DatabaseConfig struct {
 	MaxIdleConns    int    `env:"MAX_IDLE_CONNS"`
 	ConnMaxIdleTime int    `env:"CONN_MAX_IDLE_TIME"`
 	PingTimeout     int    `env:"PING_TIMEOUT"`
+	QueryTimeout    int    `env:"QUERY_TIMEOUT"`
+}
+
+type InitialAdminConfig struct {
+	Username string `env:"USERNAME"`
+	Password string `env:"PASSWORD"`
+	Email    string `env:"EMAIL"`
 }
 
 func LoadConfig() (Config, error) {
