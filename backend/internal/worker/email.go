@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 
 	"github.com/hibiken/asynq"
 	"github.com/jonathanhu237/when-works/backend/internal/tasks"
@@ -15,27 +16,13 @@ func (w *Worker) HandleEmailNewUserTask(ctx context.Context, t *asynq.Task) erro
 		return fmt.Errorf("failed to unmarshal payload: %w", err)
 	}
 
-	w.logger.Info("sending new user email",
-		"email", payload.Email,
-		"username", payload.Username,
-	)
-
 	subject := "Welcome to WhenWorks!"
-	body := fmt.Sprintf(`Hello %s,
+	tmpl, err := template.ParseFiles("internal/worker/templates/new_user.html")
+	if err != nil {
+		return fmt.Errorf("failed to parse email template: %w", err)
+	}
 
-Welcome to WhenWorks!
-
-Your account has been created successfully.
-
-Username: %s
-Password: %s
-
-Please login and change your password as soon as possible.
-
-Best regards,
-WhenWorks Team`, payload.Username, payload.Username, payload.Password)
-
-	if err := w.mailer.SendHTML(payload.Email, subject, body); err != nil {
+	if err := w.mailer.SendHTML(payload.Email, subject, tmpl, payload); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 
