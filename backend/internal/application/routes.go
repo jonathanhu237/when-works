@@ -8,6 +8,8 @@ import (
 
 func (app *Application) routes() http.Handler {
 	router := chi.NewRouter()
+	router.NotFound(app.routeNotFound)
+	router.MethodNotAllowed(app.methodNotAllowed)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
