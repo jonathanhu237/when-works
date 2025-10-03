@@ -1,6 +1,11 @@
 package application
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/go-playground/validator/v10"
+)
 
 func (app *Application) logError(r *http.Request, err error) {
 	var (
@@ -37,4 +42,18 @@ func (app *Application) routeNotFound(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "the requested method is not allowed for the specified route", nil)
+}
+
+func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, "BAD_REQUEST", err.Error(), nil)
+}
+
+func (app *Application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors error) {
+	validationErrors := errors.(validator.ValidationErrors)
+	mappedErrors := make(map[string]string)
+	for _, fieldError := range validationErrors {
+		mappedErrors[fieldError.Field()] = fmt.Sprintf("failed on the '%s' tag", fieldError.Tag())
+	}
+
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, "VALIDATION_FAILED", "one or more fields failed validation", mappedErrors)
 }
