@@ -23,6 +23,7 @@ func New(cfg config.Config) (*Mailer, error) {
 		cfg.SMTP.Host,
 		mail.WithPort(cfg.SMTP.Port),
 		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover),
+		mail.WithSSL(),
 		mail.WithUsername(cfg.SMTP.Username),
 		mail.WithPassword(cfg.SMTP.Password),
 		mail.WithTimeout(time.Duration(cfg.SMTP.Timeout)*time.Second),
