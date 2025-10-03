@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jonathanhu237/when-works/backend/internal/application"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/jonathanhu237/when-works/backend/internal/logger"
@@ -66,9 +67,14 @@ func main() {
 	models := models.New(db, cfg)
 
 	// ------------------------------
+	// Initialize validator
+	// ------------------------------
+	validator := validator.New(validator.WithRequiredStructEnabled())
+
+	// ------------------------------
 	// Initialize application
 	// ------------------------------
-	app := application.New(cfg, logger, models)
+	app := application.New(cfg, logger, models, validator)
 	if err := app.Init(); err != nil {
 		logger.Error("error during application initialization", "error", err)
 		os.Exit(1)
