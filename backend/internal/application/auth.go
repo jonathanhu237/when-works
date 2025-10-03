@@ -71,7 +71,7 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "accessToken",
 		Value:    accessToken,
 		Path:     "/",
-		MaxAge:   app.config.JWT.Expiration,
+		Expires:  expirationTime,
 		HttpOnly: app.config.Environment == config.Production,
 		SameSite: http.SameSiteStrictMode,
 	}
@@ -79,6 +79,24 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return
 	if err = writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *Application) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Clear the accessToken cookie
+	cookie := &http.Cookie{
+		Name:     "accessToken",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: app.config.Environment == config.Production,
+		SameSite: http.SameSiteStrictMode,
+	}
+	http.SetCookie(w, cookie)
+
+	// Return success response
+	if err := writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
