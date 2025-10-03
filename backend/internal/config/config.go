@@ -33,6 +33,8 @@ type Config struct {
 	Database     DatabaseConfig     `envPrefix:"DATABASE_"`
 	InitialAdmin InitialAdminConfig `envPrefix:"INITIAL_ADMIN_"`
 	JWT          JWTConfig          `envPrefix:"JWT_"`
+	Redis        RedisConfig        `envPrefix:"REDIS_"`
+	Asynq        AsynqConfig        `envPrefix:"ASYNQ_"`
 }
 
 type ServerConfig struct {
@@ -64,6 +66,18 @@ type InitialAdminConfig struct {
 type JWTConfig struct {
 	Secret     string `env:"SECRET"`
 	Expiration int    `env:"EXPIRATION"`
+}
+
+type RedisConfig struct {
+	Host     string `env:"HOST"`
+	Port     string `env:"PORT"`
+	Password string `env:"PASSWORD"`
+	DB       int    `env:"DB"`
+}
+
+type AsynqConfig struct {
+	MaxRetry int `env:"MAX_RETRY"`
+	Timeout  int `env:"TIMEOUT"`
 }
 
 func LoadConfig() (Config, error) {
