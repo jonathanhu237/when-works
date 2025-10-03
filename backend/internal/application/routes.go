@@ -12,6 +12,9 @@ func (app *Application) routes() http.Handler {
 	router.MethodNotAllowed(app.methodNotAllowed)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
+	router.Route("/v1/auth", func(r chi.Router) {
+		r.Post("/login", app.LoginHandler)
+	})
 
 	return router
 }

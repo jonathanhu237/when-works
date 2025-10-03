@@ -57,3 +57,7 @@ func (app *Application) failedValidationResponse(w http.ResponseWriter, r *http.
 
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, "VALIDATION_FAILED", "one or more fields failed validation", mappedErrors)
 }
+
+func (app *Application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+	app.errorResponse(w, r, http.StatusUnauthorized, "INVALID_CREDENTIALS", "invalid authentication credentials", nil)
+}

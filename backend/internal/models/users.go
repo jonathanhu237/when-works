@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,4 +51,35 @@ func (m *UserModel) Insert(user *User) error {
 
 	args := []any{user.Username, user.Email, user.Name, user.PasswordHash, user.IsAdmin}
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt)
+}
+
+func (m *UserModel) GetByUsername(username string) (*User, error) {
+	query := `
+		SELECT id, username, email, name, password_hash, is_admin, created_at
+		FROM users
+		WHERE username = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.config.Database.QueryTimeout)*time.Second)
+	defer cancel()
+
+	var user User
+	if err := m.DB.QueryRowContext(ctx, query, username).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Name,
+		&user.PasswordHash,
+		&user.IsAdmin,
+		&user.CreatedAt,
+	); err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
