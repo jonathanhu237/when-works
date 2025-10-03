@@ -31,7 +31,7 @@ func New(cfg config.Config) (*Mailer, error) {
 	}, nil
 }
 
-func (m *Mailer) SendHTML(to, subject string, templateFile string, data interface{}) error {
+func (m *Mailer) SendHTML(to, subject string, templateFile string, data any) error {
 	msg := mail.NewMsg()
 	if err := msg.From(m.from); err != nil {
 		return fmt.Errorf("failed to set from address: %w", err)
