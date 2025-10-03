@@ -24,8 +24,5 @@ set-migration-version version:
     migrate -database {{postgres_dsn}} -path migrations force {{version}}
 
 [group('backend')]
-dev-application:
-    cd backend && air -c .air.application.toml
-
-dev-worker:
-    cd backend && air -c .air.worker.toml
+dev-backend:
+    cd backend && air
