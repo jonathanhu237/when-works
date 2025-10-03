@@ -29,7 +29,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+func (app *Application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	app.logError(r, err)
 
 	message := "the server encountered a problem and could not process your request"
@@ -60,4 +60,12 @@ func (app *Application) failedValidationResponse(w http.ResponseWriter, r *http.
 
 func (app *Application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
 	app.errorResponse(w, r, http.StatusUnauthorized, "INVALID_CREDENTIALS", "invalid authentication credentials", nil)
+}
+
+func (app *Application) unauthorizedResponse(w http.ResponseWriter, r *http.Request) {
+	app.errorResponse(w, r, http.StatusUnauthorized, "UNAUTHORIZED", "you must be authenticated to access this resource", nil)
+}
+
+func (app *Application) forbiddenResponse(w http.ResponseWriter, r *http.Request) {
+	app.errorResponse(w, r, http.StatusForbidden, "FORBIDDEN", "you do not have permission to access this resource", nil)
 }

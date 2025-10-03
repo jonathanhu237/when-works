@@ -29,7 +29,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	password := app.generatePassword()
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 		case errors.Is(err, models.ErrEmailConflict):
 			app.errorResponse(w, r, http.StatusConflict, "USER_EMAIL_CONFLICT", "email already exists", nil)
 		default:
-			app.serverErrorResponse(w, r, err)
+			app.internalServerError(w, r, err)
 		}
 		return
 	}
@@ -71,6 +71,6 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 
 	// Return created user
 	if err := app.writeJSON(w, http.StatusCreated, user, nil); err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.internalServerError(w, r, err)
 	}
 }

@@ -11,6 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type CustomClaims struct {
+	UserID   string `json:"user_id"`
+	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
+	jwt.RegisteredClaims
+}
+
 func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Username string `json:"username" validate:"required"`
@@ -33,7 +40,7 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, models.ErrRecordNotFound):
 			app.invalidCredentialsResponse(w, r)
 		default:
-			app.serverErrorResponse(w, r, err)
+			app.internalServerError(w, r, err)
 		}
 		return
 	}
@@ -44,25 +51,27 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			app.invalidCredentialsResponse(w, r)
 		default:
-			app.serverErrorResponse(w, r, err)
+			app.internalServerError(w, r, err)
 		}
 		return
 	}
 
 	// Generate JWT token
 	expirationTime := time.Now().Add(time.Duration(app.config.JWT.Expiration) * time.Second)
-	claims := jwt.MapClaims{
-		"user_id":  user.ID.String(),
-		"username": user.Username,
-		"is_admin": user.IsAdmin,
-		"exp":      expirationTime.Unix(),
-		"iat":      time.Now().Unix(),
+	claims := CustomClaims{
+		UserID:   user.ID.String(),
+		Username: user.Username,
+		IsAdmin:  user.IsAdmin,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	accessToken, err := token.SignedString([]byte(app.config.JWT.Secret))
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
@@ -79,7 +88,7 @@ func (app *Application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return
 	if err = app.writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.internalServerError(w, r, err)
 	}
 }
 
@@ -97,6 +106,6 @@ func (app *Application) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return success response
 	if err := app.writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.internalServerError(w, r, err)
 	}
 }
