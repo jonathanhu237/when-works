@@ -10,10 +10,18 @@
           "Helvetica Neue", Arial, sans-serif;
         line-height: 1.6;
         color: #333;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
+        margin: 0;
+        padding: 0;
         background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .wrapper {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
       }
       .container {
         background-color: #ffffff;
@@ -68,10 +76,11 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>🎉 Welcome to WhenWorks!</h1>
-      </div>
+    <div class="wrapper">
+      <div class="container">
+        <div class="header">
+          <h1>🎉 Welcome to WhenWorks!</h1>
+        </div>
 
       <div class="content">
         <p class="greeting">Hello <strong>{{.name}}</strong>,</p>
@@ -106,6 +115,7 @@
           This is an automated message. Please do not reply to this email.
         </p>
       </div>
+    </div>
     </div>
   </body>
 </html>
