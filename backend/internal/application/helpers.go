@@ -14,6 +14,13 @@ import (
 // JSON
 // ------------------------------------
 func writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
+	// Handle 204 No Content - should not include a response body
+	if status == http.StatusNoContent {
+		maps.Copy(w.Header(), headers)
+		w.WriteHeader(status)
+		return nil
+	}
+
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
