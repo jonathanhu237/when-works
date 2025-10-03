@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"time"
 
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/wneessen/go-mail"
@@ -24,6 +25,7 @@ func New(cfg config.Config) (*Mailer, error) {
 		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover),
 		mail.WithUsername(cfg.SMTP.Username),
 		mail.WithPassword(cfg.SMTP.Password),
+		mail.WithTimeout(time.Duration(cfg.SMTP.Timeout)*time.Second),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create mail client: %w", err)
