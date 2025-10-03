@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/hibiken/asynq"
 	"github.com/jonathanhu237/when-works/backend/internal/application"
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/jonathanhu237/when-works/backend/internal/logger"
@@ -72,9 +73,19 @@ func main() {
 	validator := validator.New(validator.WithRequiredStructEnabled())
 
 	// ------------------------------
+	// Create asynq Client
+	// ------------------------------
+	asynqClient := asynq.NewClient(asynq.RedisClientOpt{
+		Addr:     fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+	defer asynqClient.Close()
+
+	// ------------------------------
 	// Initialize application
 	// ------------------------------
-	app := application.New(cfg, logger, models, validator)
+	app := application.New(cfg, logger, models, validator, asynqClient)
 	if err := app.Init(); err != nil {
 		logger.Error("error during application initialization", "error", err)
 		os.Exit(1)
