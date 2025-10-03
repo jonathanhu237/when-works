@@ -2,6 +2,7 @@ package mailer
 
 import (
 	"fmt"
+	"html/template"
 
 	"github.com/jonathanhu237/when-works/backend/internal/config"
 	"github.com/wneessen/go-mail"
@@ -30,16 +31,20 @@ func New(cfg config.Config) (*Mailer, error) {
 	}, nil
 }
 
-func (m *Mailer) SendHTML(to, subject, htmlBody string) error {
+func (m *Mailer) SendHTML(to, subject string, tmpl *template.Template, data interface{}) error {
 	msg := mail.NewMsg()
 	if err := msg.From(m.from); err != nil {
 		return fmt.Errorf("failed to set from address: %w", err)
 	}
+
 	if err := msg.To(to); err != nil {
 		return fmt.Errorf("failed to set to address: %w", err)
 	}
+
 	msg.Subject(subject)
-	msg.SetBodyString(mail.TypeTextHTML, htmlBody)
+	if err := msg.SetBodyHTMLTemplate(tmpl, data); err != nil {
+		return fmt.Errorf("failed to set email body: %w", err)
+	}
 
 	if err := m.client.DialAndSend(msg); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
