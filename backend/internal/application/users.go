@@ -57,6 +57,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	// Send email in background
 	app.background(func() {
 		data := map[string]any{
+			"name":     user.Name,
 			"username": user.Username,
 			"password": password,
 		}
