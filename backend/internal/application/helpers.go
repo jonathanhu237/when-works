@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"math/rand/v2"
 	"net/http"
 	"strings"
 )
@@ -89,4 +90,19 @@ func readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	}
 
 	return nil
+}
+
+// ------------------------------------
+// Password
+// ------------------------------------
+func generatePassword() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const length = 12
+
+	password := make([]byte, length)
+	for i := range password {
+		password[i] = charset[rand.IntN(len(charset))]
+	}
+
+	return string(password)
 }
