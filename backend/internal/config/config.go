@@ -32,6 +32,7 @@ type Config struct {
 	Server       ServerConfig       `envPrefix:"SERVER_"`
 	Database     DatabaseConfig     `envPrefix:"DATABASE_"`
 	InitialAdmin InitialAdminConfig `envPrefix:"INITIAL_ADMIN_"`
+	JWT          JWTConfig          `envPrefix:"JWT_"`
 }
 
 type ServerConfig struct {
@@ -58,6 +59,11 @@ type InitialAdminConfig struct {
 	Username string `env:"USERNAME"`
 	Password string `env:"PASSWORD"`
 	Email    string `env:"EMAIL"`
+}
+
+type JWTConfig struct {
+	Secret     string `env:"SECRET"`
+	Expiration int    `env:"EXPIRATION"`
 }
 
 func LoadConfig() (Config, error) {
