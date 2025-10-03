@@ -35,6 +35,7 @@ type Config struct {
 	JWT          JWTConfig          `envPrefix:"JWT_"`
 	Redis        RedisConfig        `envPrefix:"REDIS_"`
 	Asynq        AsynqConfig        `envPrefix:"ASYNQ_"`
+	SMTP         SMTPConfig         `envPrefix:"SMTP_"`
 }
 
 type ServerConfig struct {
@@ -76,8 +77,17 @@ type RedisConfig struct {
 }
 
 type AsynqConfig struct {
-	MaxRetry int `env:"MAX_RETRY"`
-	Timeout  int `env:"TIMEOUT"`
+	MaxRetry    int `env:"MAX_RETRY"`
+	Timeout     int `env:"TIMEOUT"`
+	Concurrency int `env:"CONCURRENCY"`
+}
+
+type SMTPConfig struct {
+	Host     string `env:"HOST"`
+	Port     int    `env:"PORT"`
+	Username string `env:"USERNAME"`
+	Password string `env:"PASSWORD"`
+	From     string `env:"FROM"`
 }
 
 func LoadConfig() (Config, error) {
