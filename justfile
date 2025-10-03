@@ -22,3 +22,7 @@ migration-version:
 [group('database migration')]
 set-migration-version version:
     docker compose run --rm migrator -database {{postgres_dsn}} -path migrations force {{version}}
+
+[group('backend')]
+dev-backend:
+    cd backend && air
