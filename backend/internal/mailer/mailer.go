@@ -31,7 +31,7 @@ func New(cfg config.Config) (*Mailer, error) {
 	}, nil
 }
 
-func (m *Mailer) SendHTML(to, subject string, tmpl *template.Template, data interface{}) error {
+func (m *Mailer) SendHTML(to, subject string, templateFile string, data interface{}) error {
 	msg := mail.NewMsg()
 	if err := msg.From(m.from); err != nil {
 		return fmt.Errorf("failed to set from address: %w", err)
@@ -42,6 +42,11 @@ func (m *Mailer) SendHTML(to, subject string, tmpl *template.Template, data inte
 	}
 
 	msg.Subject(subject)
+	tmpl, err := template.ParseFiles(fmt.Sprintf("templates/%s", templateFile))
+	if err != nil {
+		return fmt.Errorf("failed to parse template file: %w", err)
+	}
+
 	if err := msg.SetBodyHTMLTemplate(tmpl, data); err != nil {
 		return fmt.Errorf("failed to set email body: %w", err)
 	}
