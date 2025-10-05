@@ -18,6 +18,7 @@ func (app *Application) routes() http.Handler {
 	})
 	router.With(app.requireAuth, app.requireAdmin).Route("/v1/users", func(r chi.Router) {
 		r.Post("/", app.CreateUserHandler)
+		r.Patch("/{userID}", app.UpdateUserHandler)
 	})
 
 	return router
