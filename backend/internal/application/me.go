@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/jonathanhu237/when-works/backend/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *Application) GetMeHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +81,65 @@ func (app *Application) UpdateMeHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := app.writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+func (app *Application) UpdateMePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	requester := r.Context().Value(requesterContextKey).(*RequesterInfo)
+
+	var input struct {
+		OldPassword string `json:"old_password" validate:"required"`
+		NewPassword string `json:"new_password" validate:"required,min=8"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := app.validator.Struct(input); err != nil {
+		app.failedValidationResponse(w, r, err)
+		return
+	}
+
+	user, err := app.models.User.GetByID(requester.UserID)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.errorResponse(w, r, http.StatusNotFound, "USER_NOT_FOUND", "user not found", nil)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.OldPassword)); err != nil {
+		app.errorResponse(w, r, http.StatusUnauthorized, "INVALID_PASSWORD", "old password is incorrect", nil)
+		return
+	}
+
+	// Hash new password
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	user.PasswordHash = string(newPasswordHash)
+
+	if err := app.models.User.Update(user); err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.errorResponse(w, r, http.StatusNotFound, "USER_NOT_FOUND", "user not found", nil)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
