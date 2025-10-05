@@ -20,6 +20,7 @@ func (app *Application) routes() http.Handler {
 		r.Get("/", app.ListUsersHandler)
 		r.Post("/", app.CreateUserHandler)
 		r.Route("/{userID}", func(r chi.Router) {
+			r.Get("/", app.GetUserHandler)
 			r.Patch("/", app.UpdateUserHandler)
 		})
 	})
