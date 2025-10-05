@@ -22,6 +22,7 @@ func (app *Application) routes() http.Handler {
 		r.Route("/{userID}", func(r chi.Router) {
 			r.Get("/", app.GetUserHandler)
 			r.Patch("/", app.UpdateUserHandler)
+			r.Post("/reset-password", app.ResetUserPasswordHandler)
 		})
 	})
 

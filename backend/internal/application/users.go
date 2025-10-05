@@ -119,6 +119,68 @@ func (app *Application) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *Application) ResetUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	userIDParam := chi.URLParam(r, "userID")
+	if userIDParam == "" {
+		app.badRequestResponse(w, r, errors.New("user id is required"))
+		return
+	}
+
+	userID, err := uuid.Parse(userIDParam)
+	if err != nil {
+		app.badRequestResponse(w, r, errors.New("invalid user id"))
+		return
+	}
+
+	user, err := app.models.User.GetByID(userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.errorResponse(w, r, http.StatusNotFound, "USER_NOT_FOUND", "user not found", nil)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	password := app.generatePassword()
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	user.PasswordHash = string(passwordHash)
+
+	if err := app.models.User.Update(user); err != nil {
+		switch {
+		case errors.Is(err, models.ErrRecordNotFound):
+			app.errorResponse(w, r, http.StatusNotFound, "USER_NOT_FOUND", "user not found", nil)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	app.background(func() {
+		data := map[string]any{
+			"name":     user.Name,
+			"username": user.Username,
+			"password": password,
+		}
+
+		if err := app.mailer.SendHTML(user.Email, "Your WhenWorks Password Was Reset", "password_reset.html", data); err != nil {
+			app.logger.Error("failed to send password reset email", "error", err, "email", user.Email)
+			return
+		}
+		app.logger.Info("password reset email sent", "email", user.Email)
+	})
+
+	if err := app.writeJSON(w, http.StatusNoContent, nil, nil); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 func (app *Application) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	userIDParam := chi.URLParam(r, "userID")
 	if userIDParam == "" {
