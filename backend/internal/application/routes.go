@@ -17,8 +17,11 @@ func (app *Application) routes() http.Handler {
 		r.Post("/logout", app.LogoutHandler)
 	})
 	router.With(app.requireAuth, app.requireAdmin).Route("/v1/users", func(r chi.Router) {
+		r.Get("/", app.ListUsersHandler)
 		r.Post("/", app.CreateUserHandler)
-		r.Patch("/{userID}", app.UpdateUserHandler)
+		r.Route("/{userID}", func(r chi.Router) {
+			r.Patch("/", app.UpdateUserHandler)
+		})
 	})
 
 	return router

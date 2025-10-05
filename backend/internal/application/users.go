@@ -77,6 +77,19 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (app *Application) ListUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := app.models.User.GetAll()
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	response := map[string]any{"users": users}
+	if err := app.writeJSON(w, http.StatusOK, response, nil); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 func (app *Application) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	userIDParam := chi.URLParam(r, "userID")
 	if userIDParam == "" {
@@ -91,8 +104,8 @@ func (app *Application) UpdateUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	var input struct {
-		Email   *string `json:"email" validate:"email"`
-		Name    *string `json:"name"`
+		Email   *string `json:"email" validate:"omitempty,email"`
+		Name    *string `json:"name" validate:"omitempty,min=1"`
 		IsAdmin *bool   `json:"is_admin"`
 	}
 
