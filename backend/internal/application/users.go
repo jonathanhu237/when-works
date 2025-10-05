@@ -72,7 +72,7 @@ func (app *Application) CreateUserHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	// Return created user
-	if err := app.writeJSON(w, http.StatusCreated, user, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusCreated, map[string]any{"user": user}, nil); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
@@ -186,7 +186,7 @@ func (app *Application) UpdateUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, user, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, map[string]any{"user": user}, nil); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
