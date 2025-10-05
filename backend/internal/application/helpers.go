@@ -111,11 +111,7 @@ func (app *Application) generatePassword() string {
 // Background
 // ------------------------------------
 func (app *Application) background(fn func()) {
-	app.wg.Add(1)
-
-	go func() {
-		defer app.wg.Done()
-
+	app.wg.Go(func() {
 		defer func() {
 			if err := recover(); err != nil {
 				app.logger.Error("background panic", "error", err)
@@ -123,5 +119,5 @@ func (app *Application) background(fn func()) {
 		}()
 
 		fn()
-	}()
+	})
 }
