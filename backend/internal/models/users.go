@@ -144,3 +144,46 @@ func (m *UserModel) Update(user *User) error {
 
 	return nil
 }
+
+func (m *UserModel) GetAll() ([]User, error) {
+	query := `
+		SELECT id, username, email, name, password_hash, is_admin, created_at
+		FROM users
+		ORDER BY created_at DESC
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.config.Database.QueryTimeout)*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var user User
+
+		if err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.Name,
+			&user.PasswordHash,
+			&user.IsAdmin,
+			&user.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
