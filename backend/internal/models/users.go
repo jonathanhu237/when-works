@@ -46,6 +46,9 @@ func (m *UserModel) AdminExists() (bool, error) {
 	return exists, nil
 }
 
+// ------------------------------
+// Insert
+// ------------------------------
 func (m *UserModel) Insert(user *User) error {
 	query := `
 		INSERT INTO users (username, email, name, password_hash, is_admin)
@@ -76,6 +79,9 @@ func (m *UserModel) Insert(user *User) error {
 	return nil
 }
 
+// ------------------------------
+// Select
+// ------------------------------
 func (m *UserModel) GetByUsername(username string) (*User, error) {
 	query := `
 		SELECT id, username, email, name, password_hash, is_admin, created_at
@@ -107,42 +113,35 @@ func (m *UserModel) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (m *UserModel) Update(user *User) error {
+func (m *UserModel) GetByID(id uuid.UUID) (*User, error) {
 	query := `
-		UPDATE users
-		SET name = $1, email = $2
-		WHERE id = $3
-		RETURNING username, is_admin, created_at
+		SELECT id, username, email, name, password_hash, is_admin, created_at
+		FROM users
+		WHERE id = $1
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.config.Database.QueryTimeout)*time.Second)
 	defer cancel()
 
-	args := []any{user.Name, user.Email, user.ID}
-	if err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Username, &user.IsAdmin, &user.CreatedAt); err != nil {
-		var pgErr *pgconn.PgError
-
+	var user User
+	if err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Name,
+		&user.PasswordHash,
+		&user.IsAdmin,
+		&user.CreatedAt,
+	); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ErrRecordNotFound
-		case errors.As(err, &pgErr):
-			switch pgErr.Code {
-			case pgerrcode.UniqueViolation:
-				switch pgErr.ConstraintName {
-				case "users_email_key":
-					return ErrEmailConflict
-				default:
-					return err
-				}
-			default:
-				return err
-			}
+			return nil, ErrRecordNotFound
 		default:
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return &user, nil
 }
 
 func (m *UserModel) GetAll() ([]User, error) {
@@ -186,4 +185,45 @@ func (m *UserModel) GetAll() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+// ------------------------------
+// Update
+// ------------------------------
+func (m *UserModel) Update(user *User) error {
+	query := `
+		UPDATE users
+		SET name = $1, email = $2
+		WHERE id = $3
+		RETURNING username, is_admin, created_at
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.config.Database.QueryTimeout)*time.Second)
+	defer cancel()
+
+	args := []any{user.Name, user.Email, user.ID}
+	if err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Username, &user.IsAdmin, &user.CreatedAt); err != nil {
+		var pgErr *pgconn.PgError
+
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrRecordNotFound
+		case errors.As(err, &pgErr):
+			switch pgErr.Code {
+			case pgerrcode.UniqueViolation:
+				switch pgErr.ConstraintName {
+				case "users_email_key":
+					return ErrEmailConflict
+				default:
+					return err
+				}
+			default:
+				return err
+			}
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
