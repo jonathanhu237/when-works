@@ -193,15 +193,15 @@ func (m *UserModel) GetAll() ([]User, error) {
 func (m *UserModel) Update(user *User) error {
 	query := `
 		UPDATE users
-		SET name = $1, email = $2
-		WHERE id = $3
+		SET name = $1, email = $2, is_admin = $3
+		WHERE id = $4
 		RETURNING username, is_admin, created_at
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.config.Database.QueryTimeout)*time.Second)
 	defer cancel()
 
-	args := []any{user.Name, user.Email, user.ID}
+	args := []any{user.Name, user.Email, user.IsAdmin, user.ID}
 	if err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Username, &user.IsAdmin, &user.CreatedAt); err != nil {
 		var pgErr *pgconn.PgError
 
