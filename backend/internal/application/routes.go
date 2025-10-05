@@ -16,7 +16,10 @@ func (app *Application) routes() http.Handler {
 		r.Post("/login", app.LoginHandler)
 		r.Post("/logout", app.LogoutHandler)
 	})
-	router.With(app.requireAuth).Get("/v1/me", app.GetMeHandler)
+	router.With(app.requireAuth).Route("/v1/me", func(r chi.Router) {
+		r.Get("/", app.GetMeHandler)
+		r.Patch("/", app.UpdateMeHandler)
+	})
 	router.With(app.requireAuth, app.requireAdmin).Route("/v1/users", func(r chi.Router) {
 		r.Get("/", app.ListUsersHandler)
 		r.Post("/", app.CreateUserHandler)
