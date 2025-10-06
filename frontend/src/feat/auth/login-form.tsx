@@ -22,6 +22,7 @@ import { login } from "@/lib/api";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import type { ApiError } from "@/lib/types";
+import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -103,7 +104,14 @@ export function LoginForm({
                   className="cursor-pointer"
                   disabled={loginMutation.isPending}
                 >
-                  Login
+                  {loginMutation.isPending ? (
+                    <>
+                      <Spinner />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </Field>
             </FieldGroup>
