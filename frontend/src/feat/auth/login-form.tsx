@@ -7,13 +7,57 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { login } from "@/lib/api";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import type { ApiError } from "@/lib/types";
+
+const formSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const loginMutation = useMutation({
+    mutationFn: (data: z.infer<typeof formSchema>) => login(data),
+    onSuccess: (user) => {
+      queryClient.setQueryData(["me"], user);
+      navigate({ to: "/", replace: true });
+      toast.success("Logged in successfully");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message);
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    loginMutation.mutate(data);
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -24,25 +68,43 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Field>
+              <Field data-invalid={!!form.formState.errors.username}>
                 <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
                   id="username"
-                  type="text"
                   placeholder="Enter your username"
-                  required
+                  {...form.register("username")}
+                  aria-invalid={!!form.formState.errors.username}
+                  disabled={loginMutation.isPending}
                 />
+                <FieldError>
+                  {form.formState.errors.username?.message}
+                </FieldError>
+              </Field>
+              <Field data-invalid={!!form.formState.errors.password}>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Input
+                  id="password"
+                  placeholder="Enter your password"
+                  type="password"
+                  {...form.register("password")}
+                  aria-invalid={!!form.formState.errors.password}
+                  disabled={loginMutation.isPending}
+                />
+                <FieldError>
+                  {form.formState.errors.password?.message}
+                </FieldError>
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
+                <Button
+                  type="submit"
+                  className="cursor-pointer"
+                  disabled={loginMutation.isPending}
+                >
+                  Login
+                </Button>
               </Field>
             </FieldGroup>
           </form>
