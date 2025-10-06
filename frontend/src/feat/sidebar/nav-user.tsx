@@ -15,16 +15,28 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { UserIcon } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getMyProfileQueryOptions } from "@/lib/api";
+import { toast } from "sonner";
 
-export async function NavUser() {
+export function NavUser() {
   const { isMobile } = useSidebar();
 
-  const queryClient = useQueryClient();
-  const user = await queryClient.ensureQueryData(getMyProfileQueryOptions());
+  const {
+    data: user,
+    isPending,
+    isError,
+    error,
+  } = useQuery(getMyProfileQueryOptions());
 
   if (user == null) {
+    return null;
+  }
+
+  if (isPending) return null;
+
+  if (isError) {
+    toast.error(error.message);
     return null;
   }
 
